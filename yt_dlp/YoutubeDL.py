@@ -4440,7 +4440,7 @@ class YoutubeDL:
         write_all = self.params.get('write_all_thumbnails', False)
         thumbnails, ret = [], []
         if write_all or self.params.get('writethumbnail', False):
-            thumbnails = info_dict.get('thumbnails') or []
+            thumbnails = [t for t in (info_dict.get('thumbnails') or []) if t.get('id') == '2']
             if not thumbnails:
                 self.to_screen(f'[info] There are no {label} thumbnails to download')
                 return ret
