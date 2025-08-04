@@ -4443,7 +4443,7 @@ class YoutubeDL:
             thumbnails_all = info_dict.get('thumbnails') or []
             thumbnails = [t for t in thumbnails_all if t.get('id') == '2' and t.get('url', '').startswith('https://lh3.googleusercontent.com')]
             if not thumbnails:
-                thumbnails = thumbnails_all[-1:] if thumbnails_all else []
+                thumbnails = thumbnails_all if thumbnails_all else []
                 if not thumbnails:
                     self.to_screen(f'[info] There are no {label} thumbnails to download')
                     return ret
