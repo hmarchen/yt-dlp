@@ -4440,10 +4440,13 @@ class YoutubeDL:
         write_all = self.params.get('write_all_thumbnails', False)
         thumbnails, ret = [], []
         if write_all or self.params.get('writethumbnail', False):
-            thumbnails = [t for t in (info_dict.get('thumbnails') or []) if t.get('id') == '2']
+            thumbnails_all = info_dict.get('thumbnails') or []
+            thumbnails = [t for t in thumbnails_all if t.get('id') == '2' and t.get('url', '').startswith('https://lh3.googleusercontent.com')]
             if not thumbnails:
-                self.to_screen(f'[info] There are no {label} thumbnails to download')
-                return ret
+                thumbnails = thumbnails_all[-1:] if thumbnails_all else []
+                if not thumbnails:
+                    self.to_screen(f'[info] There are no {label} thumbnails to download')
+                    return ret
         multiple = write_all and len(thumbnails) > 1
 
         if thumb_filename_base is None:
