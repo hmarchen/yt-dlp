@@ -4441,7 +4441,9 @@ class YoutubeDL:
         thumbnails, ret = [], []
         if write_all or self.params.get('writethumbnail', False):
             thumbnails_all = info_dict.get('thumbnails') or []
-            thumbnails = [t for t in thumbnails_all if t.get('id') == '2' and t.get('url', '').startswith('https://lh3.googleusercontent.com')]
+            thumbnails = [t for t in thumbnails_all if (t.get('id') == '2' or 
+                                            t.get('url', '').startswith('https://lh3.googleusercontent.com') or 
+                                            t.get('url', '').endswith('sd1.jpg'))]
             if not thumbnails:
                 thumbnails = thumbnails_all if thumbnails_all else []
                 if not thumbnails:
