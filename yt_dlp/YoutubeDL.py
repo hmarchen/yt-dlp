@@ -595,6 +595,9 @@ class YoutubeDL:
     no_color:          Same as `color='no_color'`
     no_overwrites:     Same as `overwrites=False`
     """
+    def parseOpts(self, parser, args=None):
+        parser.add_option('--thumbnail-index', dest='thumbnail_index', type=int, default=None,
+                      help='Index of the thumbnail to download (1-based index)')
 
     _NUMERIC_FIELDS = {
         'width', 'height', 'asr', 'audio_channels', 'fps',
@@ -4515,6 +4518,47 @@ class YoutubeDL:
             thumb_filename_base = filename
         if thumbnails and not thumb_filename_base:
             self.write_debug(f'Skipping writing {label} thumbnail')
+            return ret
+
+        if thumbnails and not self._ensure_dir_exists(filename):
+            return None
+
+        thumbnail_index = self.params.get('thumbnail_index')
+        if thumbnail_index is not None:
+            thumbnail_index -= 1  # Convert to 0-based index
+            if thumbnail_index < 0 or thumbnail_index >= len(thumbnails):
+                self.report_error(f'Thumbnail index {thumbnail_index + 1} is out of range (1-{len(thumbnails)})')
+                return ret
+            thumbnails = [thumbnails[thumbnail_index]]
+
+        for idx, t in enumerate(thumbnails):
+            thumb_ext = t.get('ext') or determine_ext(t['url'], 'jpg')
+            thumb_display_id = f'{label} thumbnail {t["id"]}' if multiple else f'{label} thumbnail'
+            thumb_filename = replace_extension(filename, thumb_ext, info_dict.get('ext'))
+            thumb_filename_final = replace_extension(thumb_filename_base, thumb_ext, info_dict.get('ext'))
+
+            existing_thumb = self.existing_file((thumb_filename_final, thumb_filename))
+            if existing_thumb:
+                self.to_screen('[info] {} is already present'.format(thumb_display_id.capitalize()))
+                t['filepath'] = existing_thumb
+                ret.append((existing_thumb, thumb_filename_final))
+            else:
+                self.to_screen(f'[info] Downloading {thumb_display_id} ...')
+                try:
+                    uf = self.urlopen(Request(t['url'], headers=t.get('http_headers', {})))
+                    self.to_screen(f'[info] Writing {thumb_display_id} to: {thumb_filename}')
+                    with open(thumb_filename, 'wb') as thumbf:
+                        shutil.copyfileobj(uf, thumbf)
+                    ret.append((thumb_filename, thumb_filename_final))
+                    t['filepath'] = thumb_filename
+                except network_exceptions as err:
+                    if isinstance(err, HTTPError) and err.status == 404:
+                        self.to_screen(f'[info] {thumb_display_id.title()} does not exist')
+                    else:
+                        self.report_warning(f'Unable to download {thumb_display_id}: {err}')
+                    thumbnails.pop(idx)
+                if ret and not write_all:
+                    break
             return ret
 
         if thumbnails and not self._ensure_dir_exists(filename):
