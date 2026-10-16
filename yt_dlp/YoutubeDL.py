@@ -4560,7 +4560,6 @@ class YoutubeDL:
                 if ret and not write_all:
                     break
             return ret
-
         if thumbnails and not self._ensure_dir_exists(filename):
             return None
 
