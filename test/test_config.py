@@ -12,6 +12,7 @@ import contextlib
 import itertools
 from pathlib import Path
 
+from yt_dlp import parse_options
 from yt_dlp.compat import compat_expanduser
 from yt_dlp.options import create_parser, parseOpts
 from yt_dlp.utils import Config, get_executable_path
@@ -77,6 +78,10 @@ def _generate_expected_groups():
 
 class TestConfig(unittest.TestCase):
     maxDiff = None
+
+    def test_thumbnail_index_option_is_passed_to_ydl(self):
+        parsed = parse_options(['--ignore-config', '--thumbnail-index', '2', 'https://example.com/video'])
+        self.assertEqual(parsed.ydl_opts['thumbnail_index'], 2)
 
     @set_environ()
     def test_config__ENVIRON_DEFAULTS_sanity(self):

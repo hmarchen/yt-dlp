@@ -872,6 +872,7 @@ def parse_options(argv=None):
         'getcomments': opts.getcomments,
         'writethumbnail': opts.writethumbnail is True,
         'write_all_thumbnails': opts.writethumbnail == 'all',
+        'thumbnail_index': opts.thumbnail_index,
         'writelink': opts.writelink,
         'writeurllink': opts.writeurllink,
         'writewebloclink': opts.writewebloclink,
