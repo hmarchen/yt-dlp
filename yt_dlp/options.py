@@ -1592,7 +1592,10 @@ def create_parser():
         '--list-thumbnails',
         action='store_true', dest='list_thumbnails', default=False,
         help='List available thumbnails of each video. Simulate unless --no-simulate is used')
-
+    thumbnail.add_option(
+        '--thumbnail-index',
+        dest='thumbnail_index', type=int, default=None, metavar='INDEX',
+        help='Index of the thumbnail to download (1-based index)')
     link = optparse.OptionGroup(parser, 'Internet Shortcut Options')
     link.add_option(
         '--write-link',
