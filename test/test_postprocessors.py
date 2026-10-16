@@ -16,6 +16,7 @@ from yt_dlp.utils import (
     shell_quote,
 )
 from yt_dlp.postprocessor import (
+    EmbedThumbnailPP,
     ExecPP,
     FFmpegThumbnailsConvertorPP,
     MetadataFromFieldPP,
@@ -82,6 +83,26 @@ class TestConvertThumbnail(unittest.TestCase):
             os.remove(file.format(out))
 
         os.remove(initial_file)
+
+
+class TestEmbedThumbnailPP(unittest.TestCase):
+    def test_thumbnail_index(self):
+        pp = EmbedThumbnailPP(YoutubeDL({'thumbnail_index': 1}))
+        info = {'thumbnails': [
+            {'filepath': 'thumbnail-1.jpg'},
+            {'filepath': 'thumbnail-2.jpg'},
+        ]}
+
+        self.assertEqual(pp._get_thumbnail_index(info), 0)
+
+    def test_default_thumbnail(self):
+        pp = EmbedThumbnailPP(YoutubeDL())
+        info = {'thumbnails': [
+            {'filepath': 'thumbnail-1.jpg'},
+            {'filepath': 'thumbnail-2.jpg'},
+        ]}
+
+        self.assertEqual(pp._get_thumbnail_index(info), -1)
 
 
 class TestExec(unittest.TestCase):

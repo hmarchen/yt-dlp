@@ -53,6 +53,16 @@ class EmbedThumbnailPP(FFmpegPostProcessor):
     def _report_run(self, exe, filename):
         self.to_screen(f'{exe}: Adding thumbnail to "{filename}"')
 
+    def _get_thumbnail_index(self, info):
+        thumbnails = info['thumbnails']
+        thumbnail_index = self.get_param('thumbnail_index')
+        if thumbnail_index is not None:
+            if not 1 <= thumbnail_index <= len(thumbnails):
+                return None
+            idx = thumbnail_index - 1
+            return idx if thumbnails[idx].get('filepath') else None
+        return next((-i for i, t in enumerate(thumbnails[::-1], 1) if t.get('filepath')), None)
+
     @PostProcessor._restrict_to(images=False)
     def run(self, info):
         filename = info['filepath']
@@ -62,7 +72,7 @@ class EmbedThumbnailPP(FFmpegPostProcessor):
             self.to_screen('There aren\'t any thumbnails to embed')
             return [], info
 
-        idx = next((-i for i, t in enumerate(info['thumbnails'][::-1], 1) if t.get('filepath')), None)
+        idx = self._get_thumbnail_index(info)
         if idx is None:
             self.to_screen('There are no thumbnails on disk')
             return [], info
