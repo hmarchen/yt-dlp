@@ -1,9 +1,9 @@
 name: Release (nightly)
 on:
-  schedule:
-    - cron: '23 23 * * *'
+  push:
+    branches:
+      - main
   workflow_dispatch:
-
 permissions: {}
 
 jobs:
